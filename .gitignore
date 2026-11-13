@@ -1,30 +1,59 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
+## Build and Output Results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
 
-# Environment variables
+## Visual Studio & JetBrains & VS Code
+.vs/
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Test Results & Build Logs
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+## Compiled Artifacts
+*.dll
+*.exe
+*.pdb
+*.cache
+*.deps.json
+*.runtimeconfig.json
+
+## NuGet Packages & Assets
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.assets.json
+
+## Secrets & Local Configurations
 .env
 .env.local
 .env.*.local
+appsettings.*.local.json
+appsettings.Secrets.json
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Uploads
-backend/uploads/*
-!backend/uploads/.gitkeep
-
-# Build outputs
-dist/
-build/
-
-# Editor & OS files
-.vscode/
-.idea/
+## Operating System Files
 .DS_Store
 Thumbs.db
+desktop.ini
