@@ -1,0 +1,364 @@
+{
+  "info": {
+    "name": "LeViet Travel Microservices (.NET 8.0)",
+    "description": "Bộ kiểm thử Postman API hoàn chỉnh cho LeViet Travel (.NET 8, YARP Gateway, JWT, Refresh Token, Phân quyền RBAC, SQL Server)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Auth Service (Xác thực & Phân quyền)",
+      "item": [
+        {
+          "name": "1.1 Đăng ký tài khoản",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Trần Thị Bình\",\n  \"email\": \"binh@example.com\",\n  \"password\": \"Password123\",\n  \"phoneNumber\": \"0912345678\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/register",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "1.2 Đăng nhập Admin (Lưu Token tự động)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+                  "    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+                  "    console.log(\"Saved Admin Access Token & Refresh Token to Environment!\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@leviet.com\",\n  \"password\": \"Admin@123\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/login",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.3 Đăng nhập Khách hàng (Lưu Token tự động)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+                  "    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+                  "    console.log(\"Saved Customer Access Token & Refresh Token to Environment!\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"an@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/login",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "1.4 Lấy thông tin cá nhân (Get Me - JWT)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/me",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "1.5 Gia hạn Token (Refresh Token Rotation)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "    pm.environment.set(\"accessToken\", jsonData.data.accessToken);",
+                  "    pm.environment.set(\"refreshToken\", jsonData.data.refreshToken);",
+                  "    console.log(\"Rotated new tokens successfully!\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/refresh-token",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "1.6 Kiểm tra quyền Admin (RBAC: Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/admin-only",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "admin-only"]
+            }
+          }
+        },
+        {
+          "name": "1.7 Kiểm tra quyền Khách hàng (RBAC: Customer Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/customer-only",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "customer-only"]
+            }
+          }
+        },
+        {
+          "name": "1.8 Thu hồi Token (Revoke Token / Logout)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/auth/revoke-token",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "auth", "revoke-token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Tour Service (Danh mục & Quản lý Tour)",
+      "item": [
+        {
+          "name": "2.1 Lấy danh sách tour (Có lọc & phân trang)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gatewayUrl}}/api/tours?page=1&limit=10&keyword=Hạ Long",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "tours"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "keyword", "value": "Hạ Long" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.2 Lấy chi tiết tour theo ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gatewayUrl}}/api/tours/1",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "tours", "1"]
+            }
+          }
+        },
+        {
+          "name": "2.3 Lấy danh mục tour",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{gatewayUrl}}/api/tours/categories",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "tours", "categories"]
+            }
+          }
+        },
+        {
+          "name": "2.4 Thêm mới tour (Yêu cầu Role ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tour Tràng An - Bái Đính - Tam Chúc 2N1Đ\",\n  \"destinationName\": \"Ninh Bình - Hà Nam\",\n  \"categoryId\": 3,\n  \"price\": 2290000,\n  \"discountPrice\": 1990000,\n  \"durationDays\": 2,\n  \"durationNights\": 1,\n  \"summary\": \"Khám phá quần thể danh thắng Tràng An di sản kép thế giới.\",\n  \"description\": \"Chèo thuyền ngắm cảnh Tràng An, chiêm bái chùa Bái Đính.\",\n  \"imageUrl\": \"https://images.unsplash.com/photo-1528127269322-539801943592?w=800\",\n  \"maxCapacity\": 30\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/tours",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "tours"]
+            }
+          }
+        },
+        {
+          "name": "2.5 Xóa tour theo ID (Yêu cầu Role ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/tours/4",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "tours", "4"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Booking Service (Đặt tour & VietQR)",
+      "item": [
+        {
+          "name": "3.1 Đặt tour mới (Yêu cầu Bearer Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tourId\": 1,\n  \"tourTitle\": \"Tour Khám Phá Vịnh Hạ Long 3N2Đ - Du Thuyền 5 Sao\",\n  \"departureId\": 1,\n  \"startDate\": \"2026-11-20T00:00:00Z\",\n  \"contactName\": \"Nguyễn Văn An\",\n  \"contactEmail\": \"an@example.com\",\n  \"contactPhone\": \"0901234567\",\n  \"adultsCount\": 2,\n  \"childrenCount\": 1,\n  \"pricePerPerson\": 3450000\n}"
+            },
+            "url": {
+              "raw": "{{gatewayUrl}}/api/bookings",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "bookings"]
+            }
+          }
+        },
+        {
+          "name": "3.2 Xem danh sách đơn của tôi (Customer)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/bookings/my-bookings",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "bookings", "my-bookings"]
+            }
+          }
+        },
+        {
+          "name": "3.3 Xem chi tiết đơn đặt chỗ",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/bookings/1",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "bookings", "1"]
+            }
+          }
+        },
+        {
+          "name": "3.4 Quản trị viên xem toàn bộ đơn (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/bookings",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "bookings"]
+            }
+          }
+        },
+        {
+          "name": "3.5 Admin duyệt thanh toán đơn đặt tour",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/bookings/1/confirm",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "bookings", "1", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "3.6 Khách hàng hủy đơn đặt tour",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{gatewayUrl}}/api/bookings/1/cancel",
+              "host": ["{{gatewayUrl}}"],
+              "path": ["api", "bookings", "1", "cancel"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+@LeVietTravel.ApiGateway_HostAddress = http://localhost:5002
+
+GET {{LeVietTravel.ApiGateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

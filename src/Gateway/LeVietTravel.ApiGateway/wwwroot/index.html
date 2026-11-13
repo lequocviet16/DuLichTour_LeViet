@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeViet Travel - Đặt Tour Du Lịch Trực Tuyến (.NET 8 Microservices)</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="navbar">
+            <a href="index.html" class="logo">
+                <span>✈️</span> LeViet Travel
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">Trang Chủ</a></li>
+                <li><a href="#tours-section">Danh Sách Tour</a></li>
+                <li id="nav-my-bookings" style="display: none;"><a href="javascript:void(0)" onclick="openMyBookingsModal()">Đơn Đặt Của Tôi</a></li>
+                <li id="nav-admin" style="display: none;"><a href="admin.html" style="color: #ef4444; font-weight: 700;">Quản Trị (Admin)</a></li>
+            </ul>
+            <div class="auth-section" id="auth-section">
+                <!-- Sẽ được điền bằng JavaScript dựa trên trạng thái đăng nhập -->
+                <button class="btn btn-outline btn-sm" onclick="openAuthModal('login')">Đăng Nhập</button>
+                <button class="btn btn-primary btn-sm" onclick="openAuthModal('register')">Đăng Ký</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1>Khám Phá Vẻ Đẹp Việt Nam Cùng LeViet Travel</h1>
+        <p>Hệ thống đặt tour hiện đại xây dựng trên nền tảng ASP.NET Core 8.0 Microservices, bảo mật với JWT & Refresh Token, API Gateway YARP và SQL Server.</p>
+    </section>
+
+    <!-- Search & Filter Card -->
+    <div class="container">
+        <div class="search-card">
+            <div class="form-group">
+                <label>Tìm kiếm tour hoặc điểm đến</label>
+                <input type="text" id="filter-keyword" class="form-control" placeholder="Hạ Long, Đà Nẵng, Phú Quốc, Sapa...">
+            </div>
+            <div class="form-group">
+                <label>Danh mục</label>
+                <select id="filter-category" class="form-control">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+            </div>
+            <div class="form-group" style="align-self: flex-end;">
+                <button class="btn btn-primary" style="width: 100%; height: 42px;" onclick="searchTours()">🔍 Tìm Tour</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tours Section -->
+    <main class="container" id="tours-section">
+        <div class="section-title">
+            <span>Các Tour Nổi Bật Mới Nhất</span>
+            <small style="font-size: 0.9rem; color: var(--dark-muted); font-weight: normal;">Cập nhật theo thời gian thực</small>
+        </div>
+        <div class="tours-grid" id="tours-container">
+            <!-- Dynamic loading of tours -->
+            <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">Đang tải dữ liệu tour du lịch...</div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background: var(--white); border-top: 1px solid var(--border); padding: 2rem 0; text-align: center; margin-top: 4rem;">
+        <div class="container">
+            <p><strong>LeViet Travel System</strong> - Kiến trúc Microservices ASP.NET 8.0 + SQL Server</p>
+            <p style="font-size: 0.85rem; color: var(--dark-muted);">API Gateway YARP (Port 5000) • AuthService (5001) • TourService (5002) • BookingService (5003)</p>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (Login / Register) -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="auth-modal-title">Đăng Nhập Tài Khoản</h3>
+                <button class="modal-close" onclick="closeModal('auth-modal')">&times;</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Email</label>
+                    <input type="email" id="login-email" class="form-control" required placeholder="admin@leviet.com hoặc an@example.com">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="login-password" class="form-control" required placeholder="Admin@123 hoặc Password123">
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="quickFill('admin@leviet.com', 'Admin@123')">Điền mẫu Admin</button>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="quickFill('an@example.com', 'Password123')">Điền mẫu Khách hàng</button>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Đăng Nhập</button>
+                <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
+                    Chưa có tài khoản? <a href="javascript:void(0)" onclick="switchAuthTab('register')">Đăng ký ngay</a>
+                </p>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" style="display: none;" onsubmit="handleRegister(event)">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Họ và tên</label>
+                    <input type="text" id="reg-fullname" class="form-control" required placeholder="Nguyễn Văn A">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Email</label>
+                    <input type="email" id="reg-email" class="form-control" required placeholder="name@example.com">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Số điện thoại</label>
+                    <input type="text" id="reg-phone" class="form-control" placeholder="0901234567">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="reg-password" class="form-control" required minlength="6" placeholder="Tối thiểu 6 ký tự">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Tạo Tài Khoản</button>
+                <p style="text-align: center; margin-top: 1rem; font-size: 0.9rem;">
+                    Đã có tài khoản? <a href="javascript:void(0)" onclick="switchAuthTab('login')">Đăng nhập</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal-overlay" id="booking-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Đặt Chỗ Tour Du Lịch</h3>
+                <button class="modal-close" onclick="closeModal('booking-modal')">&times;</button>
+            </div>
+            <form id="booking-form" onsubmit="handleCreateBooking(event)">
+                <input type="hidden" id="book-tour-id">
+                <input type="hidden" id="book-price-per-person">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Tour được chọn</label>
+                    <input type="text" id="book-tour-title" class="form-control" readonly style="background: #f1f5f9; font-weight: bold;">
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Họ tên người liên hệ</label>
+                    <input type="text" id="book-name" class="form-control" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="book-email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="tel" id="book-phone" class="form-control" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Số người lớn</label>
+                        <input type="number" id="book-adults" class="form-control" min="1" max="50" value="1" onchange="calculateBookingTotal()">
+                    </div>
+                    <div class="form-group">
+                        <label>Số trẻ em (giảm 25%)</label>
+                        <input type="number" id="book-children" class="form-control" min="0" max="50" value="0" onchange="calculateBookingTotal()">
+                    </div>
+                </div>
+                <div style="background: var(--primary-light); padding: 1rem; border-radius: var(--radius); margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 1.1rem; color: var(--primary);">
+                        <span>Tổng tiền thanh toán:</span>
+                        <span id="book-total-display">0 đ</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Xác Nhận & Xuất Mã VietQR</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- VietQR Payment Modal -->
+    <div class="modal-overlay" id="qr-modal">
+        <div class="modal" style="text-align: center;">
+            <div class="modal-header">
+                <h3>Thanh Toán VietQR</h3>
+                <button class="modal-close" onclick="closeModal('qr-modal')">&times;</button>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--dark-muted);">Quét mã QR bằng ứng dụng ngân hàng bất kỳ để hoàn tất đặt cọc:</p>
+            <div style="padding: 1rem; background: #f8fafc; border: 1px dashed var(--border); border-radius: var(--radius); margin-bottom: 1rem;">
+                <img id="qr-image" src="" alt="VietQR Code" style="max-width: 260px; height: auto; border-radius: 8px;">
+            </div>
+            <p><strong>Mã đơn:</strong> <span id="qr-booking-code" style="color: var(--primary); font-weight: bold;"></span></p>
+            <p><strong>Số tiền:</strong> <span id="qr-amount" style="color: var(--danger); font-weight: bold;"></span></p>
+            <button class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;" onclick="closeModal('qr-modal'); openMyBookingsModal();">Xem Danh Sách Đơn Của Tôi</button>
+        </div>
+    </div>
+
+    <!-- My Bookings Modal -->
+    <div class="modal-overlay" id="my-bookings-modal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Lịch Sử Đặt Tour Của Bạn</h3>
+                <button class="modal-close" onclick="closeModal('my-bookings-modal')">&times;</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Tour</th>
+                            <th>Hành khách</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="my-bookings-tbody">
+                        <tr><td colspan="6" style="text-align: center;">Đang tải...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Common/">
+    <Project Path="src/Common/LeVietTravel.Common/LeVietTravel.Common.csproj" />
+  </Folder>
+  <Folder Name="/src/Gateway/">
+    <Project Path="src/Gateway/LeVietTravel.ApiGateway/LeVietTravel.ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/" />
+  <Folder Name="/src/Services/AuthService/">
+    <Project Path="src/Services/AuthService/LeVietTravel.AuthService/LeVietTravel.AuthService.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/BookingService/">
+    <Project Path="src/Services/BookingService/LeVietTravel.BookingService/LeVietTravel.BookingService.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/TourService/">
+    <Project Path="src/Services/TourService/LeVietTravel.TourService/LeVietTravel.TourService.csproj" />
+  </Folder>
+</Solution>

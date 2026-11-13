@@ -1,0 +1,6 @@
+@LeVietTravel.BookingService_HostAddress = http://localhost:5008
+
+GET {{LeVietTravel.BookingService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

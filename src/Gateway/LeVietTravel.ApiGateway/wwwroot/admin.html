@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeViet Travel - Quản Trị Hệ Thống (Admin Panel)</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: #f1f5f9;">
+    <!-- Admin Header -->
+    <header style="background: #1e293b; color: white;">
+        <div class="navbar">
+            <a href="index.html" class="logo" style="color: #38bdf8;">
+                <span>⚙️</span> LeViet Travel - Quản Trị Viên (Admin)
+            </a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <a href="index.html" class="btn btn-outline btn-sm" style="color: white; border-color: #64748b;">⬅ Về Trang Khách</a>
+                <span id="admin-user-display" style="font-size: 0.9rem;"></span>
+                <button class="btn btn-danger btn-sm" onclick="handleAdminLogout()">Đăng Xuất</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
+        <!-- Authorization Check Banner -->
+        <div id="unauthorized-box" style="display: none; background: #fee2e2; border: 1px solid #f87171; padding: 2rem; border-radius: var(--radius); text-align: center; margin-bottom: 2rem;">
+            <h2 style="color: #991b1b; margin-bottom: 0.5rem;">⛔ Truy Cập Bị Từ Chối (403 Forbidden)</h2>
+            <p style="color: #7f1d1d; margin-bottom: 1.5rem;">Trang này yêu cầu quyền <strong>ADMIN</strong>. Tài khoản hiện tại không có quyền truy cập.</p>
+            <a href="index.html" class="btn btn-primary">Quay Về Trang Chủ</a>
+        </div>
+
+        <div id="admin-content" style="display: none;">
+            <!-- Top Controls & RBAC Test -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2>Bảng Điều Khiển Quản Trị</h2>
+                    <p style="color: var(--dark-muted);">Quản lý hệ thống Microservices ASP.NET 8.0, phân quyền RBAC & dữ liệu SQL Server</p>
+                </div>
+                <div style="display: flex; gap: 0.8rem;">
+                    <button class="btn btn-outline" onclick="testAdminRBAC()">🛡 Kiểm Tra Quyền RBAC (/api/auth/admin-only)</button>
+                    <button class="btn btn-primary" onclick="openModal('add-tour-modal')">➕ Thêm Tour Mới</button>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+                <div style="background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    <div style="color: var(--dark-muted); font-size: 0.9rem;">Tổng Số Tour</div>
+                    <div id="stat-total-tours" style="font-size: 2rem; font-weight: 700; color: var(--primary);">0</div>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    <div style="color: var(--dark-muted); font-size: 0.9rem;">Tổng Đơn Booking</div>
+                    <div id="stat-total-bookings" style="font-size: 2rem; font-weight: 700; color: var(--secondary);">0</div>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    <div style="color: var(--dark-muted); font-size: 0.9rem;">Đơn Chờ Duyệt (PENDING)</div>
+                    <div id="stat-pending-bookings" style="font-size: 2rem; font-weight: 700; color: var(--warning);">0</div>
+                </div>
+                <div style="background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    <div style="color: var(--dark-muted); font-size: 0.9rem;">Doanh Thu Đã Thu</div>
+                    <div id="stat-revenue" style="font-size: 1.8rem; font-weight: 700; color: var(--success);">0 đ</div>
+                </div>
+            </div>
+
+            <!-- Booking Management Table -->
+            <div style="background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 2.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                    <h3>📋 Danh Sách Đơn Đặt Chỗ (Booking Service)</h3>
+                    <button class="btn btn-outline btn-sm" onclick="loadAdminBookings()">Làm mới</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>SĐT / Email</th>
+                                <th>Tour</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-bookings-tbody">
+                            <tr><td colspan="7" style="text-align: center;">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tour Management Table -->
+            <div style="background: white; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                    <h3>🏞 Danh Sách Tour Du Lịch (Tour Service)</h3>
+                    <button class="btn btn-outline btn-sm" onclick="loadAdminTours()">Làm mới</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã tour</th>
+                                <th>Tên tour</th>
+                                <th>Điểm đến</th>
+                                <th>Giá gốc</th>
+                                <th>Giá khuyến mãi</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-tours-tbody">
+                            <tr><td colspan="6" style="text-align: center;">Đang tải danh sách...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add New Tour -->
+    <div class="modal-overlay" id="add-tour-modal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Thêm Mới Tour Du Lịch</h3>
+                <button class="modal-close" onclick="closeModal('add-tour-modal')">&times;</button>
+            </div>
+            <form onsubmit="handleCreateTour(event)">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Tên tour du lịch</label>
+                    <input type="text" id="new-tour-title" class="form-control" required placeholder="VD: Tour Khám Phá Quy Nhơn 3N2Đ">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Điểm đến</label>
+                        <input type="text" id="new-tour-dest" class="form-control" required placeholder="Quy Nhơn, Bình Định">
+                    </div>
+                    <div class="form-group">
+                        <label>Danh mục</label>
+                        <select id="new-tour-category" class="form-control" required></select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Giá gốc (VNĐ)</label>
+                        <input type="number" id="new-tour-price" class="form-control" required min="100000" step="50000" value="3500000">
+                    </div>
+                    <div class="form-group">
+                        <label>Giá khuyến mãi (VNĐ)</label>
+                        <input type="number" id="new-tour-discount" class="form-control" min="100000" step="50000" value="3190000">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>Số ngày</label>
+                        <input type="number" id="new-tour-days" class="form-control" min="1" value="3">
+                    </div>
+                    <div class="form-group">
+                        <label>Số đêm</label>
+                        <input type="number" id="new-tour-nights" class="form-control" min="0" value="2">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Ảnh bìa (URL)</label>
+                    <input type="url" id="new-tour-image" class="form-control" placeholder="https://images.unsplash.com/..." value="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800">
+                </div>
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Tóm tắt ngắn gọn</label>
+                    <textarea id="new-tour-summary" class="form-control" rows="2" placeholder="Tóm tắt điểm đặc sắc của tour..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Tạo Tour Mới (Xác Thực Quyền Admin)</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminAuth();
+        });
+
+        function checkAdminAuth() {
+            const user = TokenStorage.getUser();
+            const unauthBox = document.getElementById('unauthorized-box');
+            const adminContent = document.getElementById('admin-content');
+            const userDisplay = document.getElementById('admin-user-display');
+
+            if (!user || user.role !== 'ADMIN') {
+                unauthBox.style.display = 'block';
+                adminContent.style.display = 'none';
+            } else {
+                unauthBox.style.display = 'none';
+                adminContent.style.display = 'block';
+                userDisplay.textContent = `Xin chào, ${user.fullName} (${user.role})`;
+                loadAdminCategories();
+                loadAdminTours();
+                loadAdminBookings();
+            }
+        }
+
+        async function testAdminRBAC() {
+            try {
+                const res = await API.testAdminRole();
+                showToast(`✅ Phân quyền RBAC chính xác: ${res.message}`, 'success');
+            } catch (err) {
+                showToast(`❌ Lỗi RBAC: ${err.message}`, 'error');
+            }
+        }
+
+        async function loadAdminCategories() {
+            try {
+                const res = await API.getCategories();
+                if (res.success && res.data) {
+                    const select = document.getElementById('new-tour-category');
+                    select.innerHTML = res.data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadAdminTours() {
+            const tbody = document.getElementById('admin-tours-tbody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Đang tải...</td></tr>';
+            try {
+                const res = await API.getTours({ limit: 100 });
+                if (res.success && res.data) {
+                    document.getElementById('stat-total-tours').textContent = res.data.length;
+                    tbody.innerHTML = res.data.map(t => `
+                        <tr>
+                            <td><code>${t.code}</code></td>
+                            <td><strong>${t.title}</strong></td>
+                            <td>${t.destinationName}</td>
+                            <td>${t.price.toLocaleString('vi-VN')} đ</td>
+                            <td style="color: var(--danger);">${(t.discountPrice || t.price).toLocaleString('vi-VN')} đ</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteAdminTour(${t.id})">Xóa</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger);">${err.message}</td></tr>`;
+            }
+        }
+
+        async function loadAdminBookings() {
+            const tbody = document.getElementById('admin-bookings-tbody');
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Đang tải...</td></tr>';
+            try {
+                const res = await API.getAllBookings();
+                if (res.success && res.data) {
+                    const bookings = res.data;
+                    document.getElementById('stat-total-bookings').textContent = bookings.length;
+                    document.getElementById('stat-pending-bookings').textContent = bookings.filter(b => b.status === 'PENDING').length;
+                    
+                    const revenue = bookings
+                        .filter(b => b.status === 'CONFIRMED')
+                        .reduce((sum, b) => sum + b.finalAmount, 0);
+                    document.getElementById('stat-revenue').textContent = revenue.toLocaleString('vi-VN') + ' đ';
+
+                    tbody.innerHTML = bookings.map(b => `
+                        <tr>
+                            <td><strong>${b.bookingCode}</strong></td>
+                            <td>${b.contactName}</td>
+                            <td>${b.contactPhone}<br><small style="color: var(--dark-muted);">${b.contactEmail}</small></td>
+                            <td>${b.tourTitle}</td>
+                            <td style="color: var(--danger); font-weight: bold;">${b.finalAmount.toLocaleString('vi-VN')} đ</td>
+                            <td>
+                                <span class="badge ${b.status === 'CONFIRMED' ? 'badge-success' : (b.status === 'CANCELLED' ? 'badge-danger' : 'badge-warning')}">
+                                    ${b.status}
+                                </span>
+                            </td>
+                            <td>
+                                ${b.status === 'PENDING' ? `<button class="btn btn-primary btn-sm" onclick="confirmAdminBooking(${b.id})">Duyệt Thanh Toán</button>` : 'Đã duyệt'}
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger);">${err.message}</td></tr>`;
+            }
+        }
+
+        async function confirmAdminBooking(id) {
+            if (!confirm('Bạn có chắc muốn duyệt thanh toán cho đơn này?')) return;
+            try {
+                await API.confirmBooking(id);
+                showToast('Duyệt đơn booking thành công!', 'success');
+                loadAdminBookings();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteAdminTour(id) {
+            if (!confirm('Bạn có chắc muốn xóa tour này? Thao tác yêu cầu quyền Admin.')) return;
+            try {
+                await API.deleteTour(id);
+                showToast('Xóa tour thành công!', 'success');
+                loadAdminTours();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function handleCreateTour(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-tour-title').value.trim();
+            const dest = document.getElementById('new-tour-dest').value.trim();
+            const catId = parseInt(document.getElementById('new-tour-category').value);
+            const price = parseFloat(document.getElementById('new-tour-price').value);
+            const discount = parseFloat(document.getElementById('new-tour-discount').value) || null;
+            const days = parseInt(document.getElementById('new-tour-days').value);
+            const nights = parseInt(document.getElementById('new-tour-nights').value);
+            const img = document.getElementById('new-tour-image').value.trim();
+            const summary = document.getElementById('new-tour-summary').value.trim();
+
+            try {
+                await API.createTour({
+                    title,
+                    destinationName: dest,
+                    categoryId: catId,
+                    price,
+                    discountPrice: discount,
+                    durationDays: days,
+                    durationNights: nights,
+                    imageUrl: img,
+                    summary
+                });
+                showToast('Thêm tour mới thành công!', 'success');
+                closeModal('add-tour-modal');
+                loadAdminTours();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function handleAdminLogout() {
+            await API.logout();
+            window.location.href = 'index.html';
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+    </script>
+</body>
+</html>
