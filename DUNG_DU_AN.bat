@@ -13,6 +13,7 @@ for %%p in (5000 5001) do (
         taskkill /F /PID %%a >nul 2>&1
     )
 )
+taskkill /F /IM LeViet_Travel_API.exe >nul 2>&1
 
 echo.
 echo ====================================================================
