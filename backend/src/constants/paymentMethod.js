@@ -1,0 +1,17 @@
+const PAYMENT_METHOD = Object.freeze({
+  CASH: 'CASH',
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  VIETQR: 'VIETQR'
+});
+
+const PAYMENT_STATUS = Object.freeze({
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED'
+});
+
+module.exports = {
+  PAYMENT_METHOD,
+  PAYMENT_STATUS
+};

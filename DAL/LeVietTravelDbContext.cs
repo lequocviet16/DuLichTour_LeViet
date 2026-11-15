@@ -12,6 +12,8 @@ public class LeVietTravelDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Destination> Destinations => Set<Destination>();
+    public DbSet<Voucher> Vouchers => Set<Voucher>();
     public DbSet<Tour> Tours => Set<Tour>();
     public DbSet<TourDeparture> TourDepartures => Set<TourDeparture>();
     public DbSet<Booking> Bookings => Set<Booking>();

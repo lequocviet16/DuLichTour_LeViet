@@ -67,15 +67,26 @@ public class TourBLL
         return ApiResponse<object>.Ok(result);
     }
 
-    public async Task<ApiResponse<TourDto>> GetTourByIdAsync(int id)
+    public async Task<ApiResponse<TourDto>> GetTourByIdOrSlugAsync(string idOrSlug)
     {
-        var tour = await _tourDAL.GetTourByIdAsync(id);
+        var tour = await _tourDAL.GetTourByIdOrSlugAsync(idOrSlug);
         if (tour == null)
         {
             return ApiResponse<TourDto>.Fail("Không tìm thấy thông tin tour du lịch.", 404);
         }
 
-        var dto = new TourDto
+        return ApiResponse<TourDto>.Ok(MapToDto(tour));
+    }
+
+    public async Task<ApiResponse<List<TourDto>>> GetRecommendationsAsync(int tourId)
+    {
+        var tours = await _tourDAL.GetRecommendationsAsync(tourId);
+        return ApiResponse<List<TourDto>>.Ok(tours.Select(MapToDto).ToList());
+    }
+
+    private static TourDto MapToDto(Tour tour)
+    {
+        return new TourDto
         {
             Id = tour.Id,
             Title = tour.Title,
@@ -105,8 +116,17 @@ public class TourBLL
                 Status = d.Status
             }).ToList()
         };
+    }
 
-        return ApiResponse<TourDto>.Ok(dto);
+    public async Task<ApiResponse<TourDto>> GetTourByIdAsync(int id)
+    {
+        var tour = await _tourDAL.GetTourByIdAsync(id);
+        if (tour == null)
+        {
+            return ApiResponse<TourDto>.Fail("Không tìm thấy thông tin tour du lịch.", 404);
+        }
+
+        return ApiResponse<TourDto>.Ok(MapToDto(tour));
     }
 
     public async Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync()

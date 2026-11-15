@@ -186,6 +186,24 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// SPA Fallback cho React Router (cả Client và Admin)
+if (Directory.Exists(frontendPath))
+{
+    var fileProvider = new PhysicalFileProvider(frontendPath);
+    app.MapFallbackToFile("admin/{*path:nonfile}", "admin/index.html", new StaticFileOptions
+    {
+        FileProvider = fileProvider
+    });
+    app.MapFallbackToFile("index.html", new StaticFileOptions
+    {
+        FileProvider = fileProvider
+    });
+}
+else
+{
+    app.MapFallbackToFile("index.html");
+}
+
 Console.WriteLine("====================================================================");
 Console.WriteLine("  LEVIET TRAVEL API ĐANG CHẠY TẠI: http://localhost:5000");
 Console.WriteLine("  TÀI LIỆU SWAGGER:               http://localhost:5000/swagger");

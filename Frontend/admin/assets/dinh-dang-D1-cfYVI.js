@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-hePW80VL.js";import{t}from"./dayjs.min-BwWoeqYR.js";var n=e(t(),1);function r(e){return Number(e||0).toLocaleString(`vi-VN`,{style:`currency`,currency:`VND`,maximumFractionDigits:0})}function i(e){return e?(0,n.default)(e).format(`DD/MM/YYYY`):`-`}export{r as n,i as t};

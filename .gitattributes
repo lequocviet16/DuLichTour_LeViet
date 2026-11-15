@@ -1,0 +1,20 @@
+# Tùy chỉnh hiển thị ngôn ngữ trên GitHub (GitHub Linguist)
+# Loại bỏ TypeScript, TSQL, Batchfile khỏi thanh thống kê ngôn ngữ
+
+# 1. Ẩn TypeScript khỏi thống kê GitHub (hoặc coi là JavaScript)
+*.ts linguist-detectable=false
+*.tsx linguist-detectable=false
+
+# 2. Ẩn các file script SQL (không tính vào TSQL)
+*.sql linguist-detectable=false
+*.sql linguist-vendored=true
+
+# 3. Ẩn các file Batch script chạy nhanh (không tính vào Batchfile)
+*.bat linguist-detectable=false
+*.cmd linguist-detectable=false
+
+# 4. Đảm bảo C#, HTML, CSS, JavaScript được tính đầy đủ
+*.cs linguist-detectable=true
+*.html linguist-detectable=true
+*.css linguist-detectable=true
+*.js linguist-detectable=true

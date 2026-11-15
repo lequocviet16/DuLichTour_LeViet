@@ -45,6 +45,30 @@ public static class DbInitializer
             context.SaveChanges();
         }
 
+        // 1.5. Seed Destinations & Vouchers if empty
+        if (!context.Destinations.Any())
+        {
+            context.Destinations.AddRange(
+                new Destination { Name = "Hạ Long, Quảng Ninh", Region = "BAC", Description = "Kỳ quan thiên nhiên thế giới với hàng nghìn đảo đá vôi kỳ vĩ.", ImageUrl = "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80" },
+                new Destination { Name = "Đà Nẵng - Hội An", Region = "TRUNG", Description = "Thành phố đáng sống với biển Mỹ Khê và phố cổ Hội An rực rỡ đèn hoa đăng.", ImageUrl = "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=800&q=80" },
+                new Destination { Name = "Phú Quốc, Kiên Giang", Region = "NAM", Description = "Đảo ngọc phương Nam với biển xanh cát trắng và hoàng hôn lãng mạn.", ImageUrl = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80" },
+                new Destination { Name = "Sapa, Lào Cai", Region = "BAC", Description = "Thị trấn trong sương, đỉnh Fansipan hùng vĩ và ruộng bậc thang.", ImageUrl = "https://images.unsplash.com/photo-1570789210967-2cac24afeb00?auto=format&fit=crop&w=800&q=80" },
+                new Destination { Name = "Hà Giang - Đồng Văn", Region = "BAC", Description = "Đèo Mã Pí Lèng, hẻm vực Tu Sản và mùa hoa tam giác mạch.", ImageUrl = "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80" },
+                new Destination { Name = "Đà Lạt, Lâm Đồng", Region = "NAM", Description = "Thành phố tình yêu ngàn hoa mộng mơ và săn mây đồi chè.", ImageUrl = "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=800&q=80" }
+            );
+            context.SaveChanges();
+        }
+
+        if (!context.Vouchers.Any())
+        {
+            context.Vouchers.AddRange(
+                new Voucher { Code = "LEVIET100", DiscountType = "FIXED", DiscountValue = 100000, MinBookingAmount = 2000000, MaxUsage = 200, UsedCount = 12, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddMonths(3), IsActive = true },
+                new Voucher { Code = "HE2026", DiscountType = "PERCENT", DiscountValue = 10, MinBookingAmount = 3000000, MaxUsage = 100, UsedCount = 45, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddMonths(2), IsActive = true },
+                new Voucher { Code = "TRIANKHACHHANG", DiscountType = "FIXED", DiscountValue = 200000, MinBookingAmount = 4000000, MaxUsage = 50, UsedCount = 8, StartDate = DateTime.UtcNow, EndDate = DateTime.UtcNow.AddMonths(1), IsActive = true }
+            );
+            context.SaveChanges();
+        }
+
         // 2. Seed Categories and Tours if empty
         if (!context.Categories.Any())
         {

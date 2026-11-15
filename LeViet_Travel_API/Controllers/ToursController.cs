@@ -24,14 +24,21 @@ public class ToursController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetTourById(int id)
+    [HttpGet("{idOrSlug}")]
+    public async Task<IActionResult> GetTourByIdOrSlug(string idOrSlug)
     {
-        var result = await _tourBLL.GetTourByIdAsync(id);
+        var result = await _tourBLL.GetTourByIdOrSlugAsync(idOrSlug);
         if (!result.Success)
         {
             return NotFound(result);
         }
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}/recommendations")]
+    public async Task<IActionResult> GetRecommendations(int id)
+    {
+        var result = await _tourBLL.GetRecommendationsAsync(id);
         return Ok(result);
     }
 

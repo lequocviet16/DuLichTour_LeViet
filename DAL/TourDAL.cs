@@ -63,6 +63,30 @@ public class TourDAL
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
+    public async Task<Tour?> GetTourByIdOrSlugAsync(string idOrSlug)
+    {
+        if (int.TryParse(idOrSlug, out var id))
+        {
+            var byId = await GetTourByIdAsync(id);
+            if (byId != null) return byId;
+        }
+
+        return await _context.Tours
+            .Include(t => t.Category)
+            .Include(t => t.Departures)
+            .FirstOrDefaultAsync(t => t.Slug == idOrSlug || t.Code == idOrSlug);
+    }
+
+    public async Task<List<Tour>> GetRecommendationsAsync(int tourId, int limit = 3)
+    {
+        return await _context.Tours
+            .Where(t => t.Id != tourId)
+            .Include(t => t.Category)
+            .Include(t => t.Departures)
+            .Take(limit)
+            .ToListAsync();
+    }
+
     public async Task<List<Category>> GetCategoriesAsync()
     {
         return await _context.Categories.AsNoTracking().ToListAsync();
