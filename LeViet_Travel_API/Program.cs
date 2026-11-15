@@ -187,9 +187,9 @@ app.UseAuthorization();
 app.MapControllers();
 
 Console.WriteLine("====================================================================");
-Console.WriteLine("  LEVIET TRAVEL API ĐANG CHẠY TẠI: http://localhost:5001");
-Console.WriteLine("  TÀI LIỆU SWAGGER:               http://localhost:5001/swagger");
-Console.WriteLine("  WEBSITE KHÁCH HÀNG:             http://localhost:5001");
+Console.WriteLine("  LEVIET TRAVEL API ĐANG CHẠY TẠI: http://localhost:5000");
+Console.WriteLine("  TÀI LIỆU SWAGGER:               http://localhost:5000/swagger");
+Console.WriteLine("  WEBSITE KHÁCH HÀNG:             http://localhost:5000");
 Console.WriteLine("====================================================================");
 
 app.Run();
