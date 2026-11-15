@@ -66,6 +66,51 @@ public class PaymentsController : ControllerBase
         return Ok(ApiResponse.Ok(result, "Lấy danh sách thanh toán thành công"));
     }
 
+    [HttpPost]
+    public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest req)
+    {
+        var b = await _context.Bookings.FindAsync(req.BookingId);
+        var amount = b != null ? (double)b.FinalAmount : 3450000.0;
+        var code = b != null ? b.BookingCode : "BK-DEMO";
+        var qrUrl = $"https://img.vietqr.io/image/MB-0988888888-compact2.png?amount={amount}&addInfo={code}";
+
+        var result = new
+        {
+            payment = new
+            {
+                id = 1,
+                bookingId = req.BookingId,
+                amount = amount,
+                paymentMethod = "VIETQR",
+                status = "PENDING",
+                createdAt = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            },
+            vietQr = new
+            {
+                qrDataUrl = qrUrl,
+                bankAccount = "0988888888",
+                bankName = "MB Bank (NHTMCP Quân Đội)",
+                accountName = "LE VIET TRAVEL",
+                amount = amount,
+                transferContent = code
+            }
+        };
+
+        return Ok(ApiResponse.Ok(result, "Khởi tạo thanh toán VietQR thành công"));
+    }
+
+    [HttpPost("{id}/proof")]
+    public IActionResult UploadProof(int id)
+    {
+        return Ok(ApiResponse.Ok(new { success = true }, "Đã tải lên chứng từ chuyển khoản thành công"));
+    }
+
+    public class CreatePaymentRequest
+    {
+        public int BookingId { get; set; }
+        public string? PaymentMethod { get; set; }
+    }
+
     [HttpPatch("{id}/status")]
     public IActionResult UpdateStatus(int id, [FromBody] UpdatePaymentStatusRequest req)
     {

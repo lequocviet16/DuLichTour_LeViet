@@ -253,7 +253,28 @@ public static class DbInitializer
                     CreatedAt = DateTime.UtcNow.AddDays(-2)
                 };
 
-                context.Bookings.Add(sampleBooking);
+                var sampleBooking2 = new Booking
+                {
+                    BookingCode = "BK-DEMO-002",
+                    UserId = 1,
+                    ContactName = "Quản trị viên LeViet",
+                    ContactEmail = "admin@leviet.com",
+                    ContactPhone = "0988888888",
+                    TourId = firstTour.Id,
+                    TourTitle = firstTour.Title,
+                    DepartureId = 1,
+                    StartDate = DateTime.UtcNow.AddDays(10),
+                    AdultsCount = 1,
+                    ChildrenCount = 0,
+                    TotalPrice = 3450000,
+                    DiscountAmount = 0,
+                    FinalAmount = 3450000,
+                    Status = "CONFIRMED",
+                    VietQrUrl = "https://img.vietqr.io/image/MB-0988888888-compact2.png?amount=3450000&addInfo=BK-DEMO-002%200988888888",
+                    CreatedAt = DateTime.UtcNow.AddDays(-1)
+                };
+
+                context.Bookings.AddRange(sampleBooking, sampleBooking2);
                 context.SaveChanges();
             }
         }
