@@ -172,7 +172,16 @@ if (Directory.Exists(frontendPath))
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = fileProvider,
-        RequestPath = ""
+        RequestPath = "",
+        OnPrepareResponse = ctx =>
+        {
+            if (ctx.File.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+            {
+                ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+                ctx.Context.Response.Headers.Append("Pragma", "no-cache");
+                ctx.Context.Response.Headers.Append("Expires", "0");
+            }
+        }
     });
 }
 else
@@ -192,11 +201,19 @@ if (Directory.Exists(frontendPath))
     var fileProvider = new PhysicalFileProvider(frontendPath);
     app.MapFallbackToFile("admin/{*path:nonfile}", "admin/index.html", new StaticFileOptions
     {
-        FileProvider = fileProvider
+        FileProvider = fileProvider,
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+        }
     });
     app.MapFallbackToFile("index.html", new StaticFileOptions
     {
-        FileProvider = fileProvider
+        FileProvider = fileProvider,
+        OnPrepareResponse = ctx =>
+        {
+            ctx.Context.Response.Headers.Append("Cache-Control", "no-cache, no-store, must-revalidate");
+        }
     });
 }
 else

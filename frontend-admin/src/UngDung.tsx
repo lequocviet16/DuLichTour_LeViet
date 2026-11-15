@@ -32,7 +32,7 @@ export default function App() {
       fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
     } }}>
       <AntApp>
-        <BrowserRouter>
+        <BrowserRouter basename="/admin">
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/login" element={session ? <Navigate to="/" replace /> : <LoginPage onLogin={login} />} />

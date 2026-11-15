@@ -73,7 +73,7 @@ public class AuthController : ControllerBase
         {
             return NotFound(result);
         }
-        return Ok(result);
+        return Ok(ApiResponse.Ok(new { User = result.Data }, "Lấy thông tin người dùng thành công"));
     }
 
     [Authorize(Roles = Roles.Admin)]

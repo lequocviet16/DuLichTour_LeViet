@@ -16,14 +16,14 @@ public static class DbInitializer
             // Database might already exist
         }
 
-        // 1. Seed Users if empty
+        // 1. Seed Users if empty or ensure correct admin password
         if (!context.Users.Any())
         {
             var admin = new User
             {
                 FullName = "Quản trị viên LeViet",
                 Email = "admin@leviet.com",
-                PasswordHash = "$2a$11$0w3fRjPjJbK49fM3yO5W1eY8M3sU6B7tZ4i9p1q3k2m5n7o9p1q3k", // Admin@123 (BCrypt)
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
                 PhoneNumber = "0988888888",
                 Role = "ADMIN",
                 IsActive = true,
@@ -34,7 +34,7 @@ public static class DbInitializer
             {
                 FullName = "Nguyễn Văn An",
                 Email = "khachhang@gmail.com",
-                PasswordHash = "$2a$11$0w3fRjPjJbK49fM3yO5W1eY8M3sU6B7tZ4i9p1q3k2m5n7o9p1q3k", // Customer@123
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Customer@123"),
                 PhoneNumber = "0901234567",
                 Role = "CUSTOMER",
                 IsActive = true,
@@ -43,6 +43,17 @@ public static class DbInitializer
 
             context.Users.AddRange(admin, customer);
             context.SaveChanges();
+        }
+        else
+        {
+            var existingAdmin = context.Users.FirstOrDefault(u => u.Email == "admin@leviet.com");
+            if (existingAdmin != null)
+            {
+                existingAdmin.PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@123");
+                existingAdmin.Role = "ADMIN";
+                existingAdmin.IsActive = true;
+                context.SaveChanges();
+            }
         }
 
         // 1.5. Seed Destinations & Vouchers if empty

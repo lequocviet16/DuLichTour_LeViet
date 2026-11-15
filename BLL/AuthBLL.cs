@@ -52,6 +52,7 @@ public class AuthBLL
         var result = new TokenResponseDto
         {
             AccessToken = accessToken,
+            Token = accessToken,
             RefreshToken = refreshToken.Token,
             ExpiresAt = refreshToken.ExpiresAt,
             User = new UserProfileDto
@@ -88,6 +89,7 @@ public class AuthBLL
         var result = new TokenResponseDto
         {
             AccessToken = accessToken,
+            Token = accessToken,
             RefreshToken = refreshToken.Token,
             ExpiresAt = refreshToken.ExpiresAt,
             User = new UserProfileDto
