@@ -17,7 +17,7 @@ echo ====================================================================
 echo                 HE THONG DA KHOI CHAY THANH CONG!
 echo ====================================================================
 echo - Website Khach Hang:       http://localhost:5000
-echo - Website Quan Tri (Admin): http://localhost:5000/admin.html
+echo - Website Quan Tri (Admin): http://localhost:5000/admin/
 echo - Tai Lieu Swagger API:     http://localhost:5000/swagger
 echo.
 echo Dang mo trinh duyet...
