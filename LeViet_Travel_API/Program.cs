@@ -10,21 +10,39 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cấu hình Cơ sở dữ liệu (SQL Server với Fallback In-Memory)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
+// 1. Cấu hình Cơ sở dữ liệu (SQL Server với Fallback In-Memory tức thì)
+var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? "Server=localhost;Database=LeVietTravel_DevDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
 
-builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
+bool isSqlServerOnline = false;
+try
 {
-    try
+    // Kiểm tra kết nối SQL Server nhanh (timeout 2s)
+    var testBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(rawConnectionString)
     {
-        options.UseSqlServer(connectionString);
-    }
-    catch
-    {
-        options.UseInMemoryDatabase("LeVietTravel_DevDb");
-    }
-});
+        ConnectTimeout = 2
+    };
+    using var testConn = new Microsoft.Data.SqlClient.SqlConnection(testBuilder.ConnectionString);
+    testConn.Open();
+    isSqlServerOnline = true;
+}
+catch
+{
+    isSqlServerOnline = false;
+}
+
+if (isSqlServerOnline)
+{
+    Console.WriteLine("[DATABASE] Đã kết nối thành công tới Microsoft SQL Server.");
+    builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
+        options.UseSqlServer(rawConnectionString));
+}
+else
+{
+    Console.WriteLine("[DATABASE] Không kết nối được SQL Server (chưa bật dịch vụ). Tự động dùng In-Memory Database để chạy ngay lập tức!");
+    builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
+        options.UseInMemoryDatabase("LeVietTravel_DevDb"));
+}
 
 // 2. Đăng ký các dịch vụ BLL và DAL
 builder.Services.AddBLLServices();
@@ -112,31 +130,14 @@ var app = builder.Build();
 // 6. Tự động khởi tạo Database và Seed dữ liệu mẫu
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<LeVietTravelDbContext>();
     try
     {
-        if (!context.Database.CanConnect())
-        {
-            // Nếu SQL Server chưa bật, chuyển sang InMemory
-            Console.WriteLine("[INFO] SQL Server chưa kết nối được, hệ thống tự động chạy trên In-Memory Database...");
-            var inMemOptions = new DbContextOptionsBuilder<LeVietTravelDbContext>()
-                .UseInMemoryDatabase("LeVietTravel_DevDb")
-                .Options;
-            var inMemContext = new LeVietTravelDbContext(inMemOptions);
-            DbInitializer.Initialize(inMemContext);
-        }
-        else
-        {
-            DbInitializer.Initialize(context);
-        }
+        var context = scope.ServiceProvider.GetRequiredService<LeVietTravelDbContext>();
+        DbInitializer.Initialize(context);
     }
-    catch
+    catch (Exception ex)
     {
-        try
-        {
-            DbInitializer.Initialize(context);
-        }
-        catch { }
+        Console.WriteLine("[WARNING] Không thể seed dữ liệu mẫu: " + ex.Message);
     }
 }
 
