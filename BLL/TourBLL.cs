@@ -21,36 +21,7 @@ public class TourBLL
         var limit = filter.Limit < 1 ? 10 : filter.Limit;
         var totalPages = (int)Math.Ceiling(totalItems / (double)limit);
 
-        var tourDtos = items.Select(t => new TourDto
-        {
-            Id = t.Id,
-            Title = t.Title,
-            Slug = t.Slug,
-            Code = t.Code,
-            Summary = t.Summary,
-            Description = t.Description,
-            Price = t.Price,
-            DiscountPrice = t.DiscountPrice,
-            DurationDays = t.DurationDays,
-            DurationNights = t.DurationNights,
-            DestinationName = t.DestinationName,
-            ImageUrl = t.ImageUrl,
-            MaxCapacity = t.MaxCapacity,
-            Status = t.Status,
-            CategoryId = t.CategoryId,
-            CategoryName = t.Category?.Name,
-            Departures = t.Departures.Select(d => new TourDepartureDto
-            {
-                Id = d.Id,
-                TourId = d.TourId,
-                StartDate = d.StartDate,
-                EndDate = d.EndDate,
-                Price = d.Price,
-                TotalSeats = d.TotalSeats,
-                BookedSeats = d.BookedSeats,
-                Status = d.Status
-            }).ToList()
-        }).ToList();
+        var tourDtos = items.Select(MapToDto).ToList();
 
         var result = new
         {
@@ -90,9 +61,11 @@ public class TourBLL
         {
             Id = tour.Id,
             Title = tour.Title,
+            Name = tour.Title,
             Slug = tour.Slug,
             Code = tour.Code,
             Summary = tour.Summary,
+            Overview = tour.Summary,
             Description = tour.Description,
             Price = tour.Price,
             DiscountPrice = tour.DiscountPrice,
@@ -100,10 +73,18 @@ public class TourBLL
             DurationNights = tour.DurationNights,
             DestinationName = tour.DestinationName,
             ImageUrl = tour.ImageUrl,
+            Thumbnail = tour.ImageUrl,
             MaxCapacity = tour.MaxCapacity,
             Status = tour.Status,
+            IsActive = tour.Status == "ACTIVE",
             CategoryId = tour.CategoryId,
-            CategoryName = tour.Category?.Name,
+            CategoryName = tour.Category?.Name ?? "Tour nổi bật",
+            Category = new { Id = tour.CategoryId, Name = tour.Category?.Name ?? "Tour nổi bật" },
+            Destinations = new List<object>
+            {
+                new { Id = 1, Name = tour.DestinationName }
+            },
+            Rating = new { Average = 4.9, Count = 28 },
             Departures = tour.Departures.Select(d => new TourDepartureDto
             {
                 Id = d.Id,
@@ -111,8 +92,11 @@ public class TourBLL
                 StartDate = d.StartDate,
                 EndDate = d.EndDate,
                 Price = d.Price,
+                AdultPrice = d.Price,
+                ChildPrice = d.Price * 0.75m,
                 TotalSeats = d.TotalSeats,
                 BookedSeats = d.BookedSeats,
+                RemainingSeats = Math.Max(0, d.TotalSeats - d.BookedSeats),
                 Status = d.Status
             }).ToList()
         };

@@ -16,9 +16,11 @@ public class TourDto
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Code { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
+    public string Overview { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public decimal? DiscountPrice { get; set; }
@@ -26,10 +28,15 @@ public class TourDto
     public int DurationNights { get; set; }
     public string DestinationName { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = string.Empty;
+    public string Thumbnail { get; set; } = string.Empty;
     public int MaxCapacity { get; set; }
     public string Status { get; set; } = "ACTIVE";
+    public bool IsActive { get; set; } = true;
     public int CategoryId { get; set; }
     public string? CategoryName { get; set; }
+    public object? Category { get; set; }
+    public object? Rating { get; set; }
+    public List<object> Destinations { get; set; } = new();
     public List<TourDepartureDto> Departures { get; set; } = new();
 }
 
@@ -40,8 +47,11 @@ public class TourDepartureDto
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public decimal Price { get; set; }
+    public decimal AdultPrice { get; set; }
+    public decimal ChildPrice { get; set; }
     public int TotalSeats { get; set; }
     public int BookedSeats { get; set; }
+    public int RemainingSeats { get; set; }
     public string Status { get; set; } = "AVAILABLE";
 }
 
