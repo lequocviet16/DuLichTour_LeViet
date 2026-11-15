@@ -1,0 +1,84 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Models.DTOs;
+
+public class TourFilterDto
+{
+    public string? Keyword { get; set; }
+    public int? CategoryId { get; set; }
+    public decimal? MinPrice { get; set; }
+    public decimal? MaxPrice { get; set; }
+    public int Page { get; set; } = 1;
+    public int Limit { get; set; } = 10;
+}
+
+public class TourDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string Code { get; set; } = string.Empty;
+    public string Summary { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public decimal? DiscountPrice { get; set; }
+    public int DurationDays { get; set; }
+    public int DurationNights { get; set; }
+    public string DestinationName { get; set; } = string.Empty;
+    public string ImageUrl { get; set; } = string.Empty;
+    public int MaxCapacity { get; set; }
+    public string Status { get; set; } = "ACTIVE";
+    public int CategoryId { get; set; }
+    public string? CategoryName { get; set; }
+    public List<TourDepartureDto> Departures { get; set; } = new();
+}
+
+public class TourDepartureDto
+{
+    public int Id { get; set; }
+    public int TourId { get; set; }
+    public DateTime StartDate { get; set; }
+    public DateTime EndDate { get; set; }
+    public decimal Price { get; set; }
+    public int TotalSeats { get; set; }
+    public int BookedSeats { get; set; }
+    public string Status { get; set; } = "AVAILABLE";
+}
+
+public class CategoryDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string? Description { get; set; }
+}
+
+public class CreateTourDto
+{
+    [Required]
+    [MaxLength(200)]
+    public string Title { get; set; } = string.Empty;
+
+    [MaxLength(50)]
+    public string Code { get; set; } = string.Empty;
+
+    [MaxLength(500)]
+    public string Summary { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
+
+    [Range(0, 1000000000)]
+    public decimal Price { get; set; }
+
+    public decimal? DiscountPrice { get; set; }
+
+    public int DurationDays { get; set; } = 3;
+    public int DurationNights { get; set; } = 2;
+
+    [MaxLength(150)]
+    public string DestinationName { get; set; } = string.Empty;
+
+    public string ImageUrl { get; set; } = string.Empty;
+
+    public int CategoryId { get; set; }
+}
