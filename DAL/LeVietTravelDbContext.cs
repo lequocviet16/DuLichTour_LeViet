@@ -16,6 +16,7 @@ public class LeVietTravelDbContext : DbContext
     public DbSet<Voucher> Vouchers => Set<Voucher>();
     public DbSet<Tour> Tours => Set<Tour>();
     public DbSet<TourDeparture> TourDepartures => Set<TourDeparture>();
+    public DbSet<TourItinerary> TourItineraries => Set<TourItinerary>();
     public DbSet<Booking> Bookings => Set<Booking>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

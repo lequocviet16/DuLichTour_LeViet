@@ -29,6 +29,7 @@ public class TourDto
     public string DestinationName { get; set; } = string.Empty;
     public string ImageUrl { get; set; } = string.Empty;
     public string Thumbnail { get; set; } = string.Empty;
+    public List<string> Images { get; set; } = new();
     public int MaxCapacity { get; set; }
     public string Status { get; set; } = "ACTIVE";
     public bool IsActive { get; set; } = true;
@@ -36,8 +37,35 @@ public class TourDto
     public string? CategoryName { get; set; }
     public object? Category { get; set; }
     public object? Rating { get; set; }
+
+    public string? IncludedServices { get; set; }
+    public string? ExcludedServices { get; set; }
+    public string? CancellationPolicy { get; set; }
+    public string? ChangePolicy { get; set; }
+    public decimal DepositPercent { get; set; } = 20;
+    public string? ChildPolicy { get; set; }
+    public string? InfantPolicy { get; set; }
+    public string? SeniorPolicy { get; set; }
+    public List<string> PickupPoints { get; set; } = new();
+    public string? MeetingInstructions { get; set; }
+    public string? LuggagePolicy { get; set; }
+    public string? InsuranceDetails { get; set; }
+    public string? VisaRequirements { get; set; }
+    public string? RequiredDocuments { get; set; }
+    public string? TermsAndConditions { get; set; }
+    public string? VideoUrl { get; set; }
+
     public List<object> Destinations { get; set; } = new();
     public List<TourDepartureDto> Departures { get; set; } = new();
+    public List<ItineraryDto> Itineraries { get; set; } = new();
+}
+
+public class ItineraryDto
+{
+    public int Id { get; set; }
+    public int DayNumber { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 }
 
 public class TourDepartureDto

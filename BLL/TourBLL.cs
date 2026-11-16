@@ -65,7 +65,7 @@ public class TourBLL
             Slug = tour.Slug,
             Code = tour.Code,
             Summary = tour.Summary,
-            Overview = tour.Summary,
+            Overview = !string.IsNullOrWhiteSpace(tour.Description) ? tour.Description : tour.Summary,
             Description = tour.Description,
             Price = tour.Price,
             DiscountPrice = tour.DiscountPrice,
@@ -74,6 +74,9 @@ public class TourBLL
             DestinationName = tour.DestinationName,
             ImageUrl = tour.ImageUrl,
             Thumbnail = tour.ImageUrl,
+            Images = !string.IsNullOrWhiteSpace(tour.Images)
+                ? tour.Images.Split(new[] { ';', '\n' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                : new List<string> { tour.ImageUrl },
             MaxCapacity = tour.MaxCapacity,
             Status = tour.Status,
             IsActive = tour.Status == "ACTIVE",
@@ -85,6 +88,34 @@ public class TourBLL
                 new { Id = 1, Name = tour.DestinationName }
             },
             Rating = new { Average = 4.9, Count = 28 },
+
+            IncludedServices = tour.IncludedServices,
+            ExcludedServices = tour.ExcludedServices,
+            CancellationPolicy = tour.CancellationPolicy,
+            ChangePolicy = tour.ChangePolicy,
+            DepositPercent = tour.DepositPercent > 0 ? tour.DepositPercent : 20,
+            ChildPolicy = tour.ChildPolicy,
+            InfantPolicy = tour.InfantPolicy,
+            SeniorPolicy = tour.SeniorPolicy,
+            PickupPoints = !string.IsNullOrWhiteSpace(tour.PickupPoints) 
+                ? tour.PickupPoints.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList()
+                : new List<string> { "Nhà hát Lớn Hà Nội", "Sân bay Quốc tế / Điểm hẹn trung tâm" },
+            MeetingInstructions = tour.MeetingInstructions,
+            LuggagePolicy = tour.LuggagePolicy,
+            InsuranceDetails = tour.InsuranceDetails,
+            VisaRequirements = tour.VisaRequirements,
+            RequiredDocuments = tour.RequiredDocuments,
+            TermsAndConditions = tour.TermsAndConditions,
+            VideoUrl = tour.VideoUrl,
+
+            Itineraries = tour.Itineraries.OrderBy(i => i.DayNumber).Select(i => new ItineraryDto
+            {
+                Id = i.Id,
+                DayNumber = i.DayNumber,
+                Title = i.Title,
+                Description = i.Description
+            }).ToList(),
+
             Departures = tour.Departures.Select(d => new TourDepartureDto
             {
                 Id = d.Id,

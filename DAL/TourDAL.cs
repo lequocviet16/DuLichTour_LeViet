@@ -18,6 +18,7 @@ public class TourDAL
         var query = _context.Tours
             .Include(t => t.Category)
             .Include(t => t.Departures)
+            .Include(t => t.Itineraries)
             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.Keyword))
@@ -60,6 +61,7 @@ public class TourDAL
         return await _context.Tours
             .Include(t => t.Category)
             .Include(t => t.Departures)
+            .Include(t => t.Itineraries)
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
@@ -74,6 +76,7 @@ public class TourDAL
         return await _context.Tours
             .Include(t => t.Category)
             .Include(t => t.Departures)
+            .Include(t => t.Itineraries)
             .FirstOrDefaultAsync(t => t.Slug == idOrSlug || t.Code == idOrSlug);
     }
 
@@ -83,6 +86,7 @@ public class TourDAL
             .Where(t => t.Id != tourId)
             .Include(t => t.Category)
             .Include(t => t.Departures)
+            .Include(t => t.Itineraries)
             .Take(limit)
             .ToListAsync();
     }

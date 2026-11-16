@@ -40,6 +40,9 @@ public class Tour
     [MaxLength(500)]
     public string ImageUrl { get; set; } = string.Empty;
 
+    [MaxLength(2000)]
+    public string? Images { get; set; }
+
     public int MaxCapacity { get; set; } = 30;
 
     [MaxLength(20)]
@@ -49,7 +52,25 @@ public class Tour
     [ForeignKey("CategoryId")]
     public Category? Category { get; set; }
 
+    public string? IncludedServices { get; set; }
+    public string? ExcludedServices { get; set; }
+    public string? CancellationPolicy { get; set; }
+    public string? ChangePolicy { get; set; }
+    public decimal DepositPercent { get; set; } = 20;
+    public string? ChildPolicy { get; set; }
+    public string? InfantPolicy { get; set; }
+    public string? SeniorPolicy { get; set; }
+    public string? PickupPoints { get; set; }
+    public string? MeetingInstructions { get; set; }
+    public string? LuggagePolicy { get; set; }
+    public string? InsuranceDetails { get; set; }
+    public string? VisaRequirements { get; set; }
+    public string? RequiredDocuments { get; set; }
+    public string? TermsAndConditions { get; set; }
+    public string? VideoUrl { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public List<TourDeparture> Departures { get; set; } = new();
+    public List<TourItinerary> Itineraries { get; set; } = new();
 }
