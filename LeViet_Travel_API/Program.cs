@@ -10,38 +10,61 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Cấu hình Cơ sở dữ liệu (SQL Server với Fallback In-Memory tức thì)
+// 1. Cấu hình Cơ sở dữ liệu (Tự động nhận diện MySQL, SQL Server, hoặc Fallback In-Memory)
 var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
-    ?? "Server=localhost;Database=LeVietTravel_DevDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true";
+    ?? "Server=localhost;Port=3306;Database=leviet_travel_net;User=root;Password=123456;";
 
+bool isMysqlOnline = false;
 bool isSqlServerOnline = false;
+
+// A. Kiểm tra kết nối MySQL
 try
 {
-    // Kiểm tra kết nối SQL Server nhanh (timeout 2s)
-    var testBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(rawConnectionString)
-    {
-        ConnectTimeout = 2
-    };
-    using var testConn = new Microsoft.Data.SqlClient.SqlConnection(testBuilder.ConnectionString);
-    testConn.Open();
-    isSqlServerOnline = true;
+    using var mySqlConn = new MySqlConnector.MySqlConnection(rawConnectionString);
+    mySqlConn.Open();
+    isMysqlOnline = true;
 }
 catch
 {
-    isSqlServerOnline = false;
+    isMysqlOnline = false;
 }
 
-if (isSqlServerOnline)
+if (isMysqlOnline)
 {
-    Console.WriteLine("[DATABASE] Đã kết nối thành công tới Microsoft SQL Server.");
+    Console.WriteLine("[DATABASE] Đã kết nối thành công tới MySQL Database (MySQL 8.0).");
     builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
-        options.UseSqlServer(rawConnectionString));
+        options.UseMySql(rawConnectionString, ServerVersion.AutoDetect(rawConnectionString)));
 }
 else
 {
-    Console.WriteLine("[DATABASE] Không kết nối được SQL Server (chưa bật dịch vụ). Tự động dùng In-Memory Database để chạy ngay lập tức!");
-    builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
-        options.UseInMemoryDatabase("LeVietTravel_DevDb"));
+    // B. Kiểm tra kết nối SQL Server
+    try
+    {
+        var testBuilder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(rawConnectionString)
+        {
+            ConnectTimeout = 2
+        };
+        using var testConn = new Microsoft.Data.SqlClient.SqlConnection(testBuilder.ConnectionString);
+        testConn.Open();
+        isSqlServerOnline = true;
+    }
+    catch
+    {
+        isSqlServerOnline = false;
+    }
+
+    if (isSqlServerOnline)
+    {
+        Console.WriteLine("[DATABASE] Đã kết nối thành công tới Microsoft SQL Server.");
+        builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
+            options.UseSqlServer(rawConnectionString));
+    }
+    else
+    {
+        Console.WriteLine("[DATABASE] Không kết nối được MySQL hoặc SQL Server. Tự động dùng In-Memory Database để chạy ngay lập tức!");
+        builder.Services.AddDbContext<LeVietTravelDbContext>(options =>
+            options.UseInMemoryDatabase("LeVietTravel_DevDb"));
+    }
 }
 
 // 2. Đăng ký các dịch vụ BLL và DAL
